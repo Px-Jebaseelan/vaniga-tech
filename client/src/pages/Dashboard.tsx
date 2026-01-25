@@ -17,6 +17,7 @@ import { FloatingActionButton } from '../components/ui/FloatingActionButton';
 import { Button } from '../components/ui/Button';
 import { LanguageSwitcher } from '../components/ui/LanguageSwitcher';
 import { QuickActionCard } from '../components/ui/QuickActionCard';
+import { AIInsights } from '../components/ui/AIInsights';
 import { useAuth } from '../context/AuthContext';
 import { transactionService } from '../services/transactionService';
 import { generateCreditReport } from '../utils/pdfGenerator';
@@ -213,6 +214,9 @@ export const Dashboard: React.FC = () => {
                     />
                 </div>
             </Card>
+
+            {/* AI Insights */}
+            <AIInsights />
 
             {/* Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
