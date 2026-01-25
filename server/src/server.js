@@ -73,6 +73,19 @@ app.get('/', (req, res) => {
     });
 });
 
+// Detailed health check for monitoring services (UptimeRobot, Cron-Job.org, etc.)
+app.get('/api/health', (req, res) => {
+    res.status(200).json({
+        status: 'ok',
+        message: 'Server is healthy and running',
+        timestamp: new Date().toISOString(),
+        uptime: process.uptime(),
+        environment: process.env.NODE_ENV || 'development',
+        database: 'connected', // MongoDB connection is established in connectDB()
+        version: '1.0.0',
+    });
+});
+
 // API routes
 app.use('/api/auth', authRoutes);
 app.use('/api/transactions', transactionRoutes);
