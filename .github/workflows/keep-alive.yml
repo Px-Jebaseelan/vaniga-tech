@@ -1,0 +1,26 @@
+name: Keep Server Awake
+
+# Run every 10 minutes to prevent Render free tier from sleeping
+on:
+  schedule:
+    - cron: '*/10 * * * *'  # Every 10 minutes
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  ping-server:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Ping health endpoint
+        run: |
+          echo "Pinging server to keep it awake..."
+          response=$(curl -s -o /dev/null -w "%{http_code}" https://vaniga-tech-server.onrender.com/api/health || echo "000")
+          
+          if [ "$response" = "200" ]; then
+            echo "✅ Server is awake (HTTP $response)"
+          else
+            echo "⚠️ Server responded with HTTP $response (waking up...)"
+          fi
+          
+      - name: Log timestamp
+        run: echo "Keep-alive ping sent at $(date)"
