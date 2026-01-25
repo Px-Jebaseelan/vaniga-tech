@@ -17,7 +17,7 @@ export const wakeUpServer = async (): Promise<void> => {
 
         console.log('🔄 Waking up server...');
 
-        await fetch(`${API_URL}/api/health`, {
+        await fetch(`${API_URL}/health`, {
             method: 'GET',
             signal: controller.signal,
         });
@@ -40,7 +40,7 @@ export const keepServerAlive = (): (() => void) => {
 
     const intervalId = setInterval(async () => {
         try {
-            await fetch(`${API_URL}/api/health`, {
+            await fetch(`${API_URL}/health`, {
                 method: 'GET',
             });
             console.log('🔄 Keep-alive ping sent');
@@ -65,7 +65,7 @@ export const checkServerStatus = async (): Promise<boolean> => {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 3000);
 
-        const response = await fetch(`${API_URL}/api/health`, {
+        const response = await fetch(`${API_URL}/health`, {
             method: 'GET',
             signal: controller.signal,
         });
