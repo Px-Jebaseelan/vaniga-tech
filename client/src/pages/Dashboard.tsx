@@ -132,7 +132,7 @@ export const Dashboard: React.FC = () => {
             <Card className="bg-gradient-to-br from-indigo-50 via-white to-emerald-50">
                 {/* Speedometer - centered at top */}
                 <div className="flex justify-center mb-8">
-                    <CreditSpeedometer score={user?.vanigaScore || 300} size="md" />
+                    <CreditSpeedometer score={700} size="md" />
                 </div>
 
                 {/* Heading and description */}
@@ -275,7 +275,7 @@ export const Dashboard: React.FC = () => {
                     </div>
                 ) : (
                     <div className="space-y-3">
-                        {recentTransactions.map((txn) => (
+                        {(recentTransactions || []).map((txn) => (
                             <div
                                 key={txn._id}
                                 className="flex items-center justify-between p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors"
