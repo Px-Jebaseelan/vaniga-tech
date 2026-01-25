@@ -13,7 +13,9 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 export const wakeUpServer = async (): Promise<void> => {
     try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+        const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout for cold starts
+
+        console.log('🔄 Waking up server...');
 
         await fetch(`${API_URL}/api/health`, {
             method: 'GET',
@@ -23,8 +25,8 @@ export const wakeUpServer = async (): Promise<void> => {
         clearTimeout(timeoutId);
         console.log('✅ Server is awake and ready');
     } catch (error) {
-        // Silently fail - server will wake up on first real request
-        console.log('⏳ Server is waking up...');
+        // Server is waking up - this is normal for first request after sleep
+        console.log('⏳ Server is waking up in background (this can take 30-60 seconds on first visit)');
     }
 };
 
