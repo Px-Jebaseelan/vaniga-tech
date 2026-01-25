@@ -5,6 +5,7 @@ import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { FloatingActionButton } from '../components/ui/FloatingActionButton';
+import { VoiceTransactionButton } from '../components/ui/VoiceTransactionButton';
 import { transactionService } from '../services/transactionService';
 import { useAuth } from '../context/AuthContext';
 import type { Transaction, TransactionFormData } from '../types';
@@ -126,14 +127,27 @@ export const Transactions: React.FC = () => {
                     <h1 className="text-3xl font-bold text-slate-900">{t('transactions')}</h1>
                     <p className="text-slate-600 mt-1">{t('manageDailyTransactions')}</p>
                 </div>
-                <Button
-                    variant="primary"
-                    icon={<Plus className="w-5 h-5" />}
-                    onClick={() => setShowModal(true)}
-                    className="hidden md:flex"
-                >
-                    {t('addTransaction')}
-                </Button>
+                <div className="flex gap-2">
+                    <VoiceTransactionButton
+                        onTransactionParsed={(data) => {
+                            setFormData({
+                                ...formData,
+                                type: data.type,
+                                amount: data.amount,
+                                customerName: data.customerName || '',
+                            });
+                            setShowModal(true);
+                        }}
+                    />
+                    <Button
+                        variant="primary"
+                        icon={<Plus className="w-5 h-5" />}
+                        onClick={() => setShowModal(true)}
+                        className="hidden md:flex"
+                    >
+                        {t('addTransaction')}
+                    </Button>
+                </div>
             </div>
 
             {/* Transactions List */}
