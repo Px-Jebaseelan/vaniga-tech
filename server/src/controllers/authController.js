@@ -51,6 +51,7 @@ export const register = async (req, res) => {
                     vanigaScore: user.vanigaScore,
                     loanEligible: user.loanEligible,
                     onboardingComplete: user.onboardingComplete,
+                    upiId: user.upiId,
                 },
                 token,
             },
@@ -116,6 +117,7 @@ export const login = async (req, res) => {
                     vanigaScore: user.vanigaScore,
                     loanEligible: user.loanEligible,
                     onboardingComplete: user.onboardingComplete,
+                    upiId: user.upiId,
                 },
                 token,
             },
@@ -150,6 +152,7 @@ export const getMe = async (req, res) => {
                     vanigaScore: user.vanigaScore,
                     loanEligible: user.loanEligible,
                     onboardingComplete: user.onboardingComplete,
+                    upiId: user.upiId,
                 },
             },
         });
@@ -169,13 +172,14 @@ export const getMe = async (req, res) => {
  */
 export const updateProfile = async (req, res) => {
     try {
-        const { businessName, ownerName, onboardingComplete } = req.body;
+        const { businessName, ownerName, onboardingComplete, upiId } = req.body;
 
         const user = await User.findById(req.user._id);
 
         if (businessName) user.businessName = businessName;
         if (ownerName) user.ownerName = ownerName;
         if (onboardingComplete !== undefined) user.onboardingComplete = onboardingComplete;
+        if (upiId !== undefined) user.upiId = upiId;
 
         await user.save();
 
@@ -191,6 +195,7 @@ export const updateProfile = async (req, res) => {
                     vanigaScore: user.vanigaScore,
                     loanEligible: user.loanEligible,
                     onboardingComplete: user.onboardingComplete,
+                    upiId: user.upiId,
                 },
             },
         });

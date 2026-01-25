@@ -1,16 +1,25 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { User, Phone, Store, Award, LogOut } from 'lucide-react';
+import { User, Phone, Store, Award, LogOut, CreditCard, Edit2, Save, X, QrCode } from 'lucide-react';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
+import { Input } from '../components/ui/Input';
 import { CreditSpeedometer } from '../components/ui/CreditSpeedometer';
+import { QRCodeModal } from '../components/ui/QRCodeModal';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
+import { authService } from '../services/authService';
+import { isValidUPIId } from '../utils/qrCodeUtils';
 
 export const Profile: React.FC = () => {
-    const { user, logout } = useAuth();
+    const { user, logout, updateUser } = useAuth();
     const { t } = useTranslation();
     const [showLogoutModal, setShowLogoutModal] = useState(false);
+    const [showQRModal, setShowQRModal] = useState(false);
+    const [editingUPI, setEditingUPI] = useState(false);
+    const [upiId, setUpiId] = useState(user?.upiId || '');
+    const [upiError, setUpiError] = useState('');
+    const [saving, setSaving] = useState(false);
 
     if (!user) return null;
 
@@ -29,6 +38,37 @@ export const Profile: React.FC = () => {
     const handleLogout = () => {
         setShowLogoutModal(false);
         logout();
+    };
+
+    const handleSaveUPI = async () => {
+        // Validate UPI ID
+        if (upiId && !isValidUPIId(upiId)) {
+            setUpiError('Invalid UPI ID format (e.g., merchant@upi)');
+            return;
+        }
+
+        try {
+            setSaving(true);
+            setUpiError('');
+
+            // Update user profile with UPI ID
+            const response = await authService.updateProfile({ upiId });
+
+            if (response.success && response.data) {
+                updateUser(response.data.user);
+                setEditingUPI(false);
+            }
+        } catch (error: any) {
+            setUpiError(error.message || 'Failed to update UPI ID');
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const handleCancelEdit = () => {
+        setUpiId(user.upiId || '');
+        setUpiError('');
+        setEditingUPI(false);
     };
 
     return (
@@ -87,6 +127,85 @@ export const Profile: React.FC = () => {
                                 </div>
                             </motion.div>
                         ))}
+                    </div>
+                </Card>
+
+                {/* UPI Payment Settings */}
+                <Card>
+                    <h2 className="text-xl font-bold text-slate-900 mb-4">Payment Settings</h2>
+                    <div className="space-y-4">
+                        <div className="p-4 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg">
+                            <div className="flex items-start gap-4">
+                                <div className="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center text-white">
+                                    <CreditCard className="w-5 h-5" />
+                                </div>
+                                <div className="flex-1">
+                                    <div className="flex items-center justify-between mb-2">
+                                        <p className="text-sm font-medium text-slate-700">UPI ID</p>
+                                        {!editingUPI && (
+                                            <button
+                                                onClick={() => setEditingUPI(true)}
+                                                className="text-indigo-600 hover:text-indigo-700 text-sm font-medium flex items-center gap-1"
+                                            >
+                                                <Edit2 className="w-4 h-4" />
+                                                Edit
+                                            </button>
+                                        )}
+                                    </div>
+
+                                    {editingUPI ? (
+                                        <div className="space-y-3">
+                                            <Input
+                                                value={upiId}
+                                                onChange={(e) => setUpiId(e.target.value)}
+                                                placeholder="merchant@upi"
+                                                error={upiError}
+                                            />
+                                            <div className="flex gap-2">
+                                                <Button
+                                                    onClick={handleSaveUPI}
+                                                    loading={saving}
+                                                    icon={<Save className="w-4 h-4" />}
+                                                    size="sm"
+                                                >
+                                                    Save
+                                                </Button>
+                                                <Button
+                                                    onClick={handleCancelEdit}
+                                                    variant="outline"
+                                                    icon={<X className="w-4 h-4" />}
+                                                    size="sm"
+                                                >
+                                                    Cancel
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <p className="font-mono text-slate-900 mb-2">
+                                                {user.upiId || 'Not set'}
+                                            </p>
+                                            {user.upiId && (
+                                                <Button
+                                                    onClick={() => setShowQRModal(true)}
+                                                    variant="outline"
+                                                    icon={<QrCode className="w-4 h-4" />}
+                                                    size="sm"
+                                                >
+                                                    Show QR Code
+                                                </Button>
+                                            )}
+                                        </>
+                                    )}
+
+                                    {!editingUPI && !user.upiId && (
+                                        <p className="text-sm text-slate-600 mt-2">
+                                            Add your UPI ID to receive payments via QR code
+                                        </p>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </Card>
 
@@ -158,6 +277,18 @@ export const Profile: React.FC = () => {
                     </>
                 )}
             </AnimatePresence>
+
+            {/* QR Code Modal */}
+            {user.upiId && (
+                <QRCodeModal
+                    isOpen={showQRModal}
+                    onClose={() => setShowQRModal(false)}
+                    upiId={user.upiId}
+                    amount={0}
+                    merchantName={user.businessName}
+                    transactionNote="Payment to merchant"
+                />
+            )}
         </>
     );
 };

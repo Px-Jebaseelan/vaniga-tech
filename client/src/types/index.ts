@@ -11,6 +11,7 @@ export interface User {
     loanEligible: boolean;
     onboardingComplete: boolean;
     gstNumber?: string;
+    upiId?: string;
     twoFactorEnabled?: boolean;
     createdAt?: string;
     updatedAt?: string;
