@@ -29,13 +29,18 @@ export const parseVoiceInput = (transcript: string): ParsedTransaction => {
     // Credit Given patterns (highest priority)
     const creditPatterns = [
         'credit given',
+        'credits given',  // Plural form
         'gave credit',
+        'gave credits',   // Plural form
         'credit to',
+        'credits to',     // Plural form
         'lent',
         'udhar diya',
         'udhar',
         'loan to',
         'advanced',
+        'credit is',      // "credit is 150"
+        'credits is',     // "credits is 150"
     ];
 
     if (creditPatterns.some(pattern => lowerTranscript.includes(pattern))) {
@@ -46,9 +51,13 @@ export const parseVoiceInput = (transcript: string): ParsedTransaction => {
     // Payment Received patterns
     const paymentPatterns = [
         'payment received',
+        'payments received',  // Plural
         'received payment',
+        'received payments',  // Plural
         'got payment',
+        'got payments',       // Plural
         'payment from',
+        'payments from',      // Plural
         'paisa mila',
         'received from',
         'collected',
@@ -63,6 +72,7 @@ export const parseVoiceInput = (transcript: string): ParsedTransaction => {
     // Expense patterns
     const expensePatterns = [
         'expense',
+        'expenses',           // Plural
         'spent',
         'paid for',
         'kharcha',
@@ -79,6 +89,9 @@ export const parseVoiceInput = (transcript: string): ParsedTransaction => {
     // ==================== AMOUNT EXTRACTION ====================
 
     const amountPatterns = [
+        // "is 150" or "are 150" patterns (for "credit is 150")
+        /(?:is|are)\s+([\d,]+)/i,
+
         // Comma-separated with currency: "17,000 rupees" or "₹17,000"
         /([\d,]+)\s*(?:rupees?|rs\.?|₹|dollars?)/i,
         /(?:rupees?|rs\.?|₹|dollars?)\s*([\d,]+)/i,
