@@ -84,8 +84,8 @@ VanigaTech is a fintech platform that helps micro and small businesses build the
 
 1. **Clone the repository**
 ```bash
-git clone https://github.com/yourusername/vanigatech.git
-cd vanigatech
+git clone https://github.com/Px-Jebaseelan/vaniga-tech.git
+cd vaniga-tech
 ```
 
 2. **Install dependencies**
