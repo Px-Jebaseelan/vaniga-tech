@@ -154,11 +154,17 @@ export const AIInsights: React.FC = () => {
                 })}
             </div>
 
-            <div className="mt-4 pt-4 border-t border-indigo-100">
-                <p className="text-xs text-slate-500 text-center">
-                    Last updated: {new Date(insights.generatedAt).toLocaleString('en-IN')}
+            {/* Footer */}
+            {insights && (
+                <p className="text-xs text-gray-500 text-center mt-4">
+                    Last updated: {insights.generatedAt
+                        ? new Date(insights.generatedAt).toLocaleString('en-IN', {
+                            dateStyle: 'medium',
+                            timeStyle: 'short'
+                        })
+                        : 'Just now'}
                 </p>
-            </div>
+            )}
         </Card>
     );
 };
