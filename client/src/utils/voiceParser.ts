@@ -51,20 +51,31 @@ export const parseVoiceInput = (transcript: string): ParsedTransaction => {
 
     // Extract amount
     const amountPatterns = [
-        /(\d+)\s*(?:rupees?|rs\.?|₹)/i,
-        /(?:rupees?|rs\.?|₹)\s*(\d+)/i,
-        /(\d+)\s*(?:thousand|hazaar)/i,
-        /(\d{3,})/,
+        // Handle comma-separated numbers: 17,000 or 1,00,000
+        /([\d,]+)\s*(?:rupees?|rs\.?|₹)/i,
+        /(?:rupees?|rs\.?|₹)\s*([\d,]+)/i,
+        // Handle "17 thousand" or "17 hazaar"
+        /(\d+)\s*(?:thousand|hazaar|lakh|lakhs)/i,
+        // Handle plain numbers with commas
+        /([\d,]{4,})/,
+        // Fallback to any number
+        /(\d+)/,
     ];
 
     for (const pattern of amountPatterns) {
         const match = lowerTranscript.match(pattern);
         if (match) {
-            let extractedAmount = parseInt(match[1]);
+            // Remove commas from the matched number
+            let extractedAmount = parseInt(match[1].replace(/,/g, ''));
 
             // Handle "thousand" or "hazaar"
             if (lowerTranscript.includes('thousand') || lowerTranscript.includes('hazaar')) {
                 extractedAmount *= 1000;
+            }
+
+            // Handle "lakh" or "lakhs"
+            if (lowerTranscript.includes('lakh')) {
+                extractedAmount *= 100000;
             }
 
             amount = extractedAmount;
