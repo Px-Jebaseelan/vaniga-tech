@@ -5,8 +5,6 @@ import {
     TrendingDown,
     DollarSign,
     Clock,
-    ArrowUpRight,
-    ArrowDownRight,
     Download,
     Share2,
     Plus,
@@ -94,37 +92,6 @@ export const Dashboard: React.FC = () => {
             </div>
         );
     }
-
-    const statCards = [
-        {
-            title: 'Credit Given',
-            value: `₹${stats?.stats.totalCreditGiven.toLocaleString('en-IN') || 0}`,
-            icon: ArrowUpRight,
-            color: 'text-amber-600',
-            bgColor: 'bg-amber-50',
-        },
-        {
-            title: 'Payment Received',
-            value: `₹${stats?.stats.totalPaymentReceived.toLocaleString('en-IN') || 0}`,
-            icon: TrendingUp,
-            color: 'text-emerald-600',
-            bgColor: 'bg-emerald-50',
-        },
-        {
-            title: 'Pending Amount',
-            value: `₹${stats?.stats.pendingAmount.toLocaleString('en-IN') || 0}`,
-            icon: Clock,
-            color: 'text-blue-600',
-            bgColor: 'bg-blue-50',
-        },
-        {
-            title: 'Total Expenses',
-            value: `₹${stats?.stats.totalExpenses.toLocaleString('en-IN') || 0}`,
-            icon: ArrowDownRight,
-            color: 'text-red-600',
-            bgColor: 'bg-red-50',
-        },
-    ];
 
     return (
         <div className="space-y-6 animate-fade-in">

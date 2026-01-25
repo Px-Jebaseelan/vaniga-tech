@@ -1,5 +1,4 @@
-import React, { ButtonHTMLAttributes } from 'react';
-import { motion } from 'framer-motion';
+import React, { type ButtonHTMLAttributes } from 'react';
 import { Loader2 } from 'lucide-react';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -20,7 +19,7 @@ export const Button: React.FC<ButtonProps> = ({
     disabled,
     ...props
 }) => {
-    const baseClasses = 'inline-flex items-center justify-center font-medium rounded-lg transition-all duration-200 gap-2 disabled:opacity-50 disabled:cursor-not-allowed';
+    const baseClasses = 'inline-flex items-center justify-center font-medium rounded-lg transition-all duration-200 gap-2 disabled:opacity-50 disabled:cursor-not-allowed active:scale-98';
 
     const variantClasses = {
         primary: 'bg-indigo-600 text-white hover:bg-indigo-700 hover:shadow-lg hover:-translate-y-0.5',
@@ -36,8 +35,7 @@ export const Button: React.FC<ButtonProps> = ({
     };
 
     return (
-        <motion.button
-            whileTap={{ scale: 0.98 }}
+        <button
             className={`${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]} ${className}`}
             disabled={disabled || loading}
             {...props}
@@ -53,6 +51,6 @@ export const Button: React.FC<ButtonProps> = ({
                     {children}
                 </>
             )}
-        </motion.button>
+        </button>
     );
 };
