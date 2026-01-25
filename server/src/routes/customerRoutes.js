@@ -1,14 +1,15 @@
-const express = require('express');
-const router = express.Router();
-const {
+import express from 'express';
+import {
     getCustomers,
     getCustomer,
     createCustomer,
     updateCustomer,
     deleteCustomer,
     refreshCustomerBalances,
-} = require('../controllers/customerController');
-const { protect } = require('../middleware/authMiddleware');
+} from '../controllers/customerController.js';
+import { protect } from '../middleware/authMiddleware.js';
+
+const router = express.Router();
 
 // All routes are protected
 router.use(protect);
@@ -23,4 +24,5 @@ router
 
 router.post('/:id/refresh', refreshCustomerBalances);
 
-module.exports = router;
+export default router;
+

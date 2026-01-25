@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const loanApplicationSchema = new mongoose.Schema(
     {
@@ -52,4 +52,5 @@ const loanApplicationSchema = new mongoose.Schema(
 
 loanApplicationSchema.index({ userId: 1, createdAt: -1 });
 
-module.exports = mongoose.model('LoanApplication', loanApplicationSchema);
+export default mongoose.model('LoanApplication', loanApplicationSchema);
+

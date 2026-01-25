@@ -1,9 +1,9 @@
-const Customer = require('../models/Customer');
+import Customer from '../models/Customer.js';
 
 // @desc    Get all customers for a user
 // @route   GET /api/customers
 // @access  Private
-exports.getCustomers = async (req, res, next) => {
+export const getCustomers = async (req, res, next) => {
     try {
         const { search, sortBy = 'name', order = 'asc' } = req.query;
 
@@ -35,7 +35,7 @@ exports.getCustomers = async (req, res, next) => {
 // @desc    Get single customer
 // @route   GET /api/customers/:id
 // @access  Private
-exports.getCustomer = async (req, res, next) => {
+export const getCustomer = async (req, res, next) => {
     try {
         const customer = await Customer.findOne({
             _id: req.params.id,
@@ -61,7 +61,7 @@ exports.getCustomer = async (req, res, next) => {
 // @desc    Create new customer
 // @route   POST /api/customers
 // @access  Private
-exports.createCustomer = async (req, res, next) => {
+export const createCustomer = async (req, res, next) => {
     try {
         const { name, phone, email, address, notes } = req.body;
 
@@ -99,7 +99,7 @@ exports.createCustomer = async (req, res, next) => {
 // @desc    Update customer
 // @route   PUT /api/customers/:id
 // @access  Private
-exports.updateCustomer = async (req, res, next) => {
+export const updateCustomer = async (req, res, next) => {
     try {
         const { name, phone, email, address, notes } = req.body;
 
@@ -136,7 +136,7 @@ exports.updateCustomer = async (req, res, next) => {
 // @desc    Delete customer
 // @route   DELETE /api/customers/:id
 // @access  Private
-exports.deleteCustomer = async (req, res, next) => {
+export const deleteCustomer = async (req, res, next) => {
     try {
         const customer = await Customer.findOne({
             _id: req.params.id,
@@ -164,7 +164,7 @@ exports.deleteCustomer = async (req, res, next) => {
 // @desc    Refresh customer balances
 // @route   POST /api/customers/:id/refresh
 // @access  Private
-exports.refreshCustomerBalances = async (req, res, next) => {
+export const refreshCustomerBalances = async (req, res, next) => {
     try {
         const customer = await Customer.findOne({
             _id: req.params.id,
@@ -188,3 +188,4 @@ exports.refreshCustomerBalances = async (req, res, next) => {
         next(error);
     }
 };
+

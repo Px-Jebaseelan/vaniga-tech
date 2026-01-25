@@ -4,6 +4,8 @@ import cors from 'cors';
 import connectDB from './config/database.js';
 import authRoutes from './routes/authRoutes.js';
 import transactionRoutes from './routes/transactionRoutes.js';
+import customerRoutes from './routes/customerRoutes.js';
+import loanRoutes from './routes/loanRoutes.js';
 import { errorHandler, notFound } from './middleware/errorMiddleware.js';
 
 // Load environment variables

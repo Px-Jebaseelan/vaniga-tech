@@ -1,9 +1,9 @@
-const LoanApplication = require('../models/LoanApplication');
+import LoanApplication from '../models/LoanApplication.js';
 
 // @desc    Get all loan applications for a user
 // @route   GET /api/loans
 // @access  Private
-exports.getLoanApplications = async (req, res, next) => {
+export const getLoanApplications = async (req, res, next) => {
     try {
         const applications = await LoanApplication.find({ userId: req.user._id })
             .sort({ createdAt: -1 });
@@ -21,7 +21,7 @@ exports.getLoanApplications = async (req, res, next) => {
 // @desc    Create new loan application
 // @route   POST /api/loans
 // @access  Private
-exports.createLoanApplication = async (req, res, next) => {
+export const createLoanApplication = async (req, res, next) => {
     try {
         const { loanAmount, purpose, tenure, remarks } = req.body;
 
@@ -55,7 +55,7 @@ exports.createLoanApplication = async (req, res, next) => {
 // @desc    Get single loan application
 // @route   GET /api/loans/:id
 // @access  Private
-exports.getLoanApplication = async (req, res, next) => {
+export const getLoanApplication = async (req, res, next) => {
     try {
         const application = await LoanApplication.findOne({
             _id: req.params.id,
@@ -77,3 +77,4 @@ exports.getLoanApplication = async (req, res, next) => {
         next(error);
     }
 };
+

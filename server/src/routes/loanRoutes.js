@@ -1,11 +1,12 @@
-const express = require('express');
-const router = express.Router();
-const {
+import express from 'express';
+import {
     getLoanApplications,
     createLoanApplication,
     getLoanApplication,
-} = require('../controllers/loanController');
-const { protect } = require('../middleware/authMiddleware');
+} from '../controllers/loanController.js';
+import { protect } from '../middleware/authMiddleware.js';
+
+const router = express.Router();
 
 router.use(protect);
 
@@ -13,4 +14,5 @@ router.route('/').get(getLoanApplications).post(createLoanApplication);
 
 router.route('/:id').get(getLoanApplication);
 
-module.exports = router;
+export default router;
+
