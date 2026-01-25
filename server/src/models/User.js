@@ -60,6 +60,12 @@ const userSchema = new mongoose.Schema(
             uppercase: true,
             sparse: true,
         },
+        upiId: {
+            type: String,
+            trim: true,
+            lowercase: true,
+            match: [/^[\w.-]+@[\w.-]+$/, 'Please provide a valid UPI ID (e.g., merchant@upi)'],
+        },
         twoFactorEnabled: {
             type: Boolean,
             default: false,

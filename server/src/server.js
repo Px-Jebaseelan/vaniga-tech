@@ -6,6 +6,8 @@ import authRoutes from './routes/authRoutes.js';
 import transactionRoutes from './routes/transactionRoutes.js';
 import customerRoutes from './routes/customerRoutes.js';
 import loanRoutes from './routes/loanRoutes.js';
+import aiRoutes from './routes/aiRoutes.js';
+import budgetRoutes from './routes/budgetRoutes.js';
 import { errorHandler, notFound } from './middleware/errorMiddleware.js';
 
 // Load environment variables
@@ -75,7 +77,9 @@ app.get('/', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/transactions', transactionRoutes);
 app.use('/api/customers', customerRoutes);
-app.use('/api/loans', loanRoutes); // Mounted loan routes
+app.use('/api/loans', loanRoutes);
+app.use('/api/ai', aiRoutes);
+app.use('/api/budgets', budgetRoutes);
 
 // ═══════════════════════════════════════════════════════════════════════
 // ERROR HANDLING
