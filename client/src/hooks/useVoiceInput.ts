@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 
 interface VoiceInputState {
     isListening: boolean;
@@ -15,6 +15,7 @@ interface UseVoiceInputReturn extends VoiceInputState {
 
 /**
  * Custom hook for voice input using Web Speech API
+ * Industry-grade implementation with error handling and retry logic
  */
 export const useVoiceInput = (): UseVoiceInputReturn => {
     const [state, setState] = useState<VoiceInputState>({
@@ -24,7 +25,9 @@ export const useVoiceInput = (): UseVoiceInputReturn => {
         isSupported: 'webkitSpeechRecognition' in window || 'SpeechRecognition' in window,
     });
 
-    const [recognition, setRecognition] = useState<any>(null);
+    const recognitionRef = useRef<any>(null);
+    const finalTranscriptRef = useRef<string>('');
+    const restartTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
     useEffect(() => {
         if (!state.isSupported) return;
@@ -33,41 +36,70 @@ export const useVoiceInput = (): UseVoiceInputReturn => {
         const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
         const recognitionInstance = new SpeechRecognition();
 
-        recognitionInstance.continuous = false;
-        recognitionInstance.interimResults = true;
+        // Configuration for better accuracy
+        recognitionInstance.continuous = true; // Keep listening
+        recognitionInstance.interimResults = true; // Show interim results
         recognitionInstance.lang = 'en-IN'; // Indian English
-        recognitionInstance.maxAlternatives = 1;
+        recognitionInstance.maxAlternatives = 3; // Get multiple alternatives for better accuracy
 
         recognitionInstance.onstart = () => {
+            console.log('🎤 Voice recognition started');
             setState(prev => ({ ...prev, isListening: true, error: null }));
+            finalTranscriptRef.current = '';
         };
 
         recognitionInstance.onresult = (event: any) => {
-            const transcript = Array.from(event.results)
-                .map((result: any) => result[0].transcript)
-                .join('');
+            let interimTranscript = '';
+            let finalTranscript = '';
 
-            setState(prev => ({ ...prev, transcript }));
+            // Process all results
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                const transcript = event.results[i][0].transcript;
+
+                if (event.results[i].isFinal) {
+                    finalTranscript += transcript + ' ';
+                } else {
+                    interimTranscript += transcript;
+                }
+            }
+
+            // Update final transcript
+            if (finalTranscript) {
+                finalTranscriptRef.current += finalTranscript;
+            }
+
+            // Show interim or final transcript
+            const displayTranscript = (finalTranscriptRef.current + interimTranscript).trim();
+            setState(prev => ({ ...prev, transcript: displayTranscript }));
         };
 
         recognitionInstance.onerror = (event: any) => {
+            console.error('Voice recognition error:', event.error);
+
             let errorMessage = 'Voice recognition error';
+            let shouldRetry = false;
 
             switch (event.error) {
                 case 'no-speech':
-                    errorMessage = 'No speech detected. Please try again.';
+                    errorMessage = 'No speech detected. Please speak clearly.';
+                    shouldRetry = true;
                     break;
                 case 'audio-capture':
                     errorMessage = 'Microphone not found. Please check your device.';
                     break;
                 case 'not-allowed':
-                    errorMessage = 'Microphone permission denied. Please allow access.';
+                    errorMessage = 'Microphone permission denied. Please allow access in browser settings.';
                     break;
                 case 'network':
                     errorMessage = 'Network error. Please check your connection.';
+                    shouldRetry = true;
                     break;
+                case 'aborted':
+                    // User stopped - not an error
+                    return;
                 default:
-                    errorMessage = `Error: ${event.error}`;
+                    errorMessage = `Recognition error: ${event.error}`;
+                    shouldRetry = true;
             }
 
             setState(prev => ({
@@ -75,47 +107,89 @@ export const useVoiceInput = (): UseVoiceInputReturn => {
                 isListening: false,
                 error: errorMessage,
             }));
+
+            // Auto-retry for transient errors
+            if (shouldRetry && state.isListening) {
+                restartTimeoutRef.current = setTimeout(() => {
+                    try {
+                        recognitionInstance.start();
+                    } catch (e) {
+                        console.log('Could not restart recognition');
+                    }
+                }, 1000);
+            }
         };
 
         recognitionInstance.onend = () => {
+            console.log('🛑 Voice recognition ended');
             setState(prev => ({ ...prev, isListening: false }));
-        };
 
-        setRecognition(recognitionInstance);
-
-        return () => {
-            if (recognitionInstance) {
-                recognitionInstance.stop();
+            // Auto-restart if still supposed to be listening
+            if (state.isListening && !state.error) {
+                restartTimeoutRef.current = setTimeout(() => {
+                    try {
+                        recognitionInstance.start();
+                    } catch (e) {
+                        console.log('Recognition already started');
+                    }
+                }, 100);
             }
         };
-    }, [state.isSupported]);
+
+        recognitionRef.current = recognitionInstance;
+
+        return () => {
+            if (restartTimeoutRef.current) {
+                clearTimeout(restartTimeoutRef.current);
+            }
+            if (recognitionInstance) {
+                try {
+                    recognitionInstance.stop();
+                } catch (e) {
+                    // Already stopped
+                }
+            }
+        };
+    }, [state.isSupported, state.isListening, state.error]);
 
     const startListening = useCallback(() => {
-        if (!recognition) return;
+        if (!recognitionRef.current) return;
 
         try {
             setState(prev => ({ ...prev, transcript: '', error: null }));
-            recognition.start();
-        } catch (error) {
-            console.error('Failed to start recognition:', error);
-            setState(prev => ({
-                ...prev,
-                error: 'Failed to start voice recognition',
-            }));
+            finalTranscriptRef.current = '';
+            recognitionRef.current.start();
+        } catch (error: any) {
+            // Already started - ignore
+            if (error.message && error.message.includes('already started')) {
+                console.log('Recognition already active');
+            } else {
+                console.error('Failed to start recognition:', error);
+                setState(prev => ({
+                    ...prev,
+                    error: 'Failed to start voice recognition. Please try again.',
+                }));
+            }
         }
-    }, [recognition]);
+    }, []);
 
     const stopListening = useCallback(() => {
-        if (!recognition) return;
+        if (!recognitionRef.current) return;
+
+        if (restartTimeoutRef.current) {
+            clearTimeout(restartTimeoutRef.current);
+            restartTimeoutRef.current = null;
+        }
 
         try {
-            recognition.stop();
+            recognitionRef.current.stop();
         } catch (error) {
             console.error('Failed to stop recognition:', error);
         }
-    }, [recognition]);
+    }, []);
 
     const resetTranscript = useCallback(() => {
+        finalTranscriptRef.current = '';
         setState(prev => ({ ...prev, transcript: '', error: null }));
     }, []);
 
