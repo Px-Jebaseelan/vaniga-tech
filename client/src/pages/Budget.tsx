@@ -5,11 +5,9 @@ import {
     Plus,
     TrendingUp,
     TrendingDown,
-    Minus,
     AlertTriangle,
     Edit,
     Trash2,
-    RefreshCw,
     X,
 } from 'lucide-react';
 import { Card } from '../components/ui/Card';
@@ -292,8 +290,8 @@ export const BudgetPage: React.FC = () => {
                                                 <p className="text-sm text-slate-600">Remaining</p>
                                                 <p
                                                     className={`text-xl font-bold ${budget.monthlyLimit - budget.currentSpent >= 0
-                                                            ? 'text-emerald-600'
-                                                            : 'text-red-600'
+                                                        ? 'text-emerald-600'
+                                                        : 'text-red-600'
                                                         }`}
                                                 >
                                                     ₹

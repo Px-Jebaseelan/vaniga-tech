@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { X, DollarSign, Calendar, FileText, AlertCircle, CheckCircle } from 'lucide-react';
 import { Button } from './Button';
-import { Input } from './Input';
 import { loanService, type LoanFormData } from '../../services/loanService';
 
 interface LoanApplicationModalProps {
