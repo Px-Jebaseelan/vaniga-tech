@@ -1,4 +1,3 @@
-```
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { User, Phone, Store, Award, LogOut, CreditCard, Edit2, Save, X, QrCode } from 'lucide-react';
@@ -7,7 +6,6 @@ import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { CreditSpeedometer } from '../components/ui/CreditSpeedometer';
 import { QRCodeModal } from '../components/ui/QRCodeModal';
-import { LoanApplicationModal } from '../components/ui/LoanApplicationModal';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
 import { authService } from '../services/authService';
@@ -17,7 +15,6 @@ export const Profile: React.FC = () => {
     const { user, logout, updateUser } = useAuth();
     const { t } = useTranslation();
     const [showLogoutModal, setShowLogoutModal] = useState(false);
-    const [showLoanModal, setShowLoanModal] = useState(false);
     const [showQRModal, setShowQRModal] = useState(false);
     const [editingUPI, setEditingUPI] = useState(false);
     const [upiId, setUpiId] = useState(user?.upiId || '');
@@ -33,7 +30,7 @@ export const Profile: React.FC = () => {
         {
             icon: Award,
             label: t('loanEligibility'),
-            value: user.loanEligible ? `${ t('eligible') } ✓` : t('notEligible'),
+            value: user.loanEligible ? `${t('eligible')} ✓` : t('notEligible'),
             color: user.loanEligible ? 'text-emerald-600' : 'text-slate-600',
         },
     ];
@@ -90,9 +87,8 @@ export const Profile: React.FC = () => {
 
                         <div className="mt-8 p-4 bg-white rounded-xl">
                             <p className="text-sm text-slate-600 mb-2">{t('loanEligibilityStatus')}</p>
-                            <div className={`inline - flex items - center gap - 2 px - 4 py - 2 rounded - full ${
-    user.loanEligible ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-700'
-} `}>
+                            <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full ${user.loanEligible ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-700'
+                                }`}>
                                 {user.loanEligible ? (
                                     <>
                                         <Award className="w-5 h-5" />
@@ -125,7 +121,7 @@ export const Profile: React.FC = () => {
                                 </div>
                                 <div className="flex-1">
                                     <p className="text-sm text-slate-500">{field.label}</p>
-                                    <p className={`font - semibold ${ field.color || 'text-slate-900' } `}>
+                                    <p className={`font-semibold ${field.color || 'text-slate-900'}`}>
                                         {field.value}
                                     </p>
                                 </div>
@@ -235,20 +231,7 @@ export const Profile: React.FC = () => {
                         year: 'numeric'
                     })}</p>
                 </div>
-
-            {/* Loan Application Modal */}
-            {user && (
-                <LoanApplicationModal
-                    isOpen={showLoanModal}
-                    onClose={() => setShowLoanModal(false)}
-                    vanigaScore={user.vanigaScore}
-                    loanEligible={user.loanEligible}
-                    onSuccess={() => {
-                        alert('Loan application submitted successfully!');
-                    }}
-                />
-            )}
-        </div>
+            </div>
 
             {/* Logout Confirmation Modal */}
             <AnimatePresence>
