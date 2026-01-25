@@ -58,17 +58,29 @@ Keep each point concise (1-2 sentences) and actionable.`;
         const response = await result.response;
         const text = response.text();
 
-        // Parse insights from response and remove markdown formatting
+        // Function to clean text from all formatting
+        const cleanText = (str) => {
+            return str
+                .replace(/\*\*/g, '') // Remove bold markdown
+                .replace(/\$/g, '') // Remove LaTeX math delimiters
+                .replace(/\\text\{([^}]+)\}/g, '$1') // Remove \text{} wrapper
+                .replace(/\\([a-zA-Z]+)/g, '') // Remove other LaTeX commands
+                .replace(/\{|\}/g, '') // Remove remaining braces
+                .replace(/\s+/g, ' ') // Normalize whitespace
+                .trim();
+        };
+
+        // Parse insights from response and clean formatting
         const insights = text
             .split('\n')
             .filter(line => line.trim().match(/^\d+\./))
             .map(line => line.replace(/^\d+\.\s*/, '').trim())
-            .map(line => line.replace(/\*\*/g, '')); // Remove bold markdown
+            .map(line => cleanText(line));
 
         res.status(200).json({
             success: true,
             data: {
-                insights: insights.length > 0 ? insights : [text.replace(/\*\*/g, '')],
+                insights: insights.length > 0 ? insights : [cleanText(text)],
                 generatedAt: new Date(),
             },
         });
