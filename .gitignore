@@ -58,8 +58,8 @@ tmp/
 .temp/
 .tmp/
 
-# MongoDB
-data/
+# MongoDB (server only)
+server/data/
 
 # Uploads
 uploads/
