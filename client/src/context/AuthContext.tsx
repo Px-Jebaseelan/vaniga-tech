@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import { authService } from '../services/authService';
+import { keepServerAlive } from '../utils/serverWakeUp';
 import type { User, LoginFormData, RegisterFormData } from '../types';
 
 interface AuthContextType {
@@ -46,6 +47,17 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
         initAuth();
     }, []);
+
+    // Keep server alive when user is logged in
+    useEffect(() => {
+        if (user) {
+            // Start keep-alive pings
+            const cleanup = keepServerAlive();
+
+            // Cleanup on logout or unmount
+            return cleanup;
+        }
+    }, [user]);
 
     const login = async (data: LoginFormData) => {
         try {

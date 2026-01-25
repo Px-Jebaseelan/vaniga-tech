@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { Layout } from './components/layout/Layout';
@@ -9,6 +9,7 @@ import { Transactions } from './pages/Transactions';
 import { Analytics } from './pages/Analytics';
 import { Profile } from './pages/Profile';
 import { Customers } from './pages/Customers';
+import { wakeUpServer } from './utils/serverWakeUp';
 
 // Protected Route Component
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -121,6 +122,12 @@ function AppRoutes() {
 }
 
 function App() {
+  // Wake up the server immediately when app loads
+  // This ensures the server is ready by the time user tries to login/register
+  useEffect(() => {
+    wakeUpServer();
+  }, []);
+
   return (
     <BrowserRouter>
       <AuthProvider>
