@@ -9,6 +9,11 @@ VanigaTech is a fintech platform that helps micro and small businesses build the
 ![Node](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen)
 ![React](https://img.shields.io/badge/react-18.3.1-blue)
 
+## 🌐 Live Demo
+
+- **Frontend (Client)**: [https://vaniga-tech.vercel.app](https://vaniga-tech.vercel.app)
+- **Backend (API)**: [https://vaniga-tech.onrender.com](https://vaniga-tech.onrender.com)
+
 ---
 
 ## 📋 Table of Contents
