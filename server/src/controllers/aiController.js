@@ -73,7 +73,23 @@ Keep each point concise (1-2 sentences) and actionable.`;
         });
     } catch (error) {
         console.error('AI Insights Error:', error);
-        next(error);
+
+        // Return a user-friendly error message
+        let errorMessage = 'Failed to generate AI insights';
+
+        if (error.message && error.message.includes('API key')) {
+            errorMessage = 'Invalid GEMINI_API_KEY. Please check your API key configuration.';
+        } else if (error.message && error.message.includes('quota')) {
+            errorMessage = 'API quota exceeded. Please try again later.';
+        } else if (error.message) {
+            errorMessage = `AI service error: ${error.message}`;
+        }
+
+        return res.status(500).json({
+            success: false,
+            message: errorMessage,
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined,
+        });
     }
 };
 
