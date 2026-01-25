@@ -1,5 +1,6 @@
 import Transaction from '../models/Transaction.js';
 import User from '../models/User.js';
+import Customer from '../models/Customer.js';
 import { calculateVanigaScore, getScoreBreakdown } from '../utils/calculateScore.js';
 
 /**
@@ -29,6 +30,25 @@ export const createTransaction = async (req, res) => {
             paymentMethod,
             date: date || Date.now(),
         });
+
+        // Update or create customer if customerName is provided
+        if (customerName && (type === 'CREDIT_GIVEN' || type === 'PAYMENT_RECEIVED')) {
+            let customer = await Customer.findOne({
+                userId: req.user._id,
+                name: customerName,
+            });
+
+            if (!customer) {
+                // Create new customer
+                customer = await Customer.create({
+                    userId: req.user._id,
+                    name: customerName,
+                });
+            }
+
+            // Update customer balances
+            await customer.updateBalances();
+        }
 
         // Recalculate VanigaScore after new transaction
         const newScore = await calculateVanigaScore(req.user._id);
@@ -167,6 +187,23 @@ export const updateTransaction = async (req, res) => {
             { new: true, runValidators: true }
         );
 
+        // Update customer balances if customerName changed or transaction type changed
+        if (transaction.customerName && (transaction.type === 'CREDIT_GIVEN' || transaction.type === 'PAYMENT_RECEIVED')) {
+            let customer = await Customer.findOne({
+                userId: req.user._id,
+                name: transaction.customerName,
+            });
+
+            if (!customer) {
+                customer = await Customer.create({
+                    userId: req.user._id,
+                    name: transaction.customerName,
+                });
+            }
+
+            await customer.updateBalances();
+        }
+
         // Recalculate score after update
         const newScore = await calculateVanigaScore(req.user._id);
         const user = await User.findById(req.user._id);
@@ -215,7 +252,23 @@ export const deleteTransaction = async (req, res) => {
             });
         }
 
+        // Store customer name before deletion
+        const customerName = transaction.customerName;
+        const transactionType = transaction.type;
+
         await transaction.deleteOne();
+
+        // Update customer balances if this was a customer transaction
+        if (customerName && (transactionType === 'CREDIT_GIVEN' || transactionType === 'PAYMENT_RECEIVED')) {
+            const customer = await Customer.findOne({
+                userId: req.user._id,
+                name: customerName,
+            });
+
+            if (customer) {
+                await customer.updateBalances();
+            }
+        }
 
         // Recalculate score after deletion
         const newScore = await calculateVanigaScore(req.user._id);
