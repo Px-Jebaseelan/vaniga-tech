@@ -39,7 +39,7 @@ export const getBusinessInsights = async (req, res, next) => {
         const summary = prepareDataSummary(transactions, req.user);
 
         // Generate insights using Gemini (using latest stable model)
-        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash-latest' });
+        const model = genAI.getGenerativeModel({ model: 'gemini-3-flash-preview' });
         const prompt = `You are a financial advisor for micro and small businesses in India. Analyze this business data and provide 4-5 actionable insights and recommendations. Be specific, practical, and encouraging.
 
 Business Data:
