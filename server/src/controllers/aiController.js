@@ -58,16 +58,17 @@ Keep each point concise (1-2 sentences) and actionable.`;
         const response = await result.response;
         const text = response.text();
 
-        // Parse insights from response
+        // Parse insights from response and remove markdown formatting
         const insights = text
             .split('\n')
             .filter(line => line.trim().match(/^\d+\./))
-            .map(line => line.replace(/^\d+\.\s*/, '').trim());
+            .map(line => line.replace(/^\d+\.\s*/, '').trim())
+            .map(line => line.replace(/\*\*/g, '')); // Remove bold markdown
 
         res.status(200).json({
             success: true,
             data: {
-                insights: insights.length > 0 ? insights : [text],
+                insights: insights.length > 0 ? insights : [text.replace(/\*\*/g, '')],
                 generatedAt: new Date(),
             },
         });
