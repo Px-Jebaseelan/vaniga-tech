@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, X, TrendingUp, TrendingDown, DollarSign } from 'lucide-react';
+import { Plus, X, TrendingUp, TrendingDown, DollarSign, Download } from 'lucide-react';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
@@ -49,6 +49,41 @@ export const Transactions: React.FC = () => {
             console.error('Error fetching transactions:', error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleExport = async (format: 'csv' | 'excel') => {
+        try {
+            const token = localStorage.getItem('token');
+            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+
+            if (format === 'csv') {
+                const response = await fetch(`${API_URL}/transactions/export?format=csv`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `transactions_${new Date().toISOString().slice(0, 10)}.csv`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+            } else {
+                const response = await fetch(`${API_URL}/transactions/export?format=json`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                const result = await response.json();
+                const XLSX = await import('xlsx');
+                const worksheet = XLSX.utils.json_to_sheet(result.data);
+                const workbook = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(workbook, worksheet, 'Transactions');
+                XLSX.writeFile(workbook, `transactions_${new Date().toISOString().slice(0, 10)}.xlsx`);
+            }
+        } catch (error) {
+            console.error('Error exporting:', error);
+            alert('Export failed. Please try again.');
         }
     };
 
@@ -139,6 +174,25 @@ export const Transactions: React.FC = () => {
                             setShowModal(true);
                         }}
                     />
+                    <div className="relative group">
+                        <Button variant="outline" icon={<Download className="w-4 h-4" />}>
+                            Export
+                        </Button>
+                        <div className="absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-lg border border-slate-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10">
+                            <button
+                                onClick={() => handleExport('csv')}
+                                className="w-full px-4 py-2 text-left text-sm hover:bg-slate-50 rounded-t-lg"
+                            >
+                                Download CSV
+                            </button>
+                            <button
+                                onClick={() => handleExport('excel')}
+                                className="w-full px-4 py-2 text-left text-sm hover:bg-slate-50 rounded-b-lg"
+                            >
+                                Download Excel
+                            </button>
+                        </div>
+                    </div>
                     <Button
                         variant="primary"
                         icon={<Plus className="w-5 h-5" />}

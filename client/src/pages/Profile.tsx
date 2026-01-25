@@ -6,6 +6,7 @@ import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { CreditSpeedometer } from '../components/ui/CreditSpeedometer';
 import { QRCodeModal } from '../components/ui/QRCodeModal';
+import { LoanApplicationModal } from '../components/ui/LoanApplicationModal';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
 import { authService } from '../services/authService';
@@ -16,6 +17,7 @@ export const Profile: React.FC = () => {
     const { t } = useTranslation();
     const [showLogoutModal, setShowLogoutModal] = useState(false);
     const [showQRModal, setShowQRModal] = useState(false);
+    const [showLoanModal, setShowLoanModal] = useState(false);
     const [editingUPI, setEditingUPI] = useState(false);
     const [upiId, setUpiId] = useState(user?.upiId || '');
     const [upiError, setUpiError] = useState('');
@@ -100,6 +102,14 @@ export const Profile: React.FC = () => {
                                     </>
                                 )}
                             </div>
+                            <Button
+                                onClick={() => setShowLoanModal(true)}
+                                variant={user.loanEligible ? 'primary' : 'outline'}
+                                size="sm"
+                                className="w-full mt-3"
+                            >
+                                {user.loanEligible ? 'Apply for Loan' : 'View Loan Requirements'}
+                            </Button>
                         </div>
                     </div>
                 </Card>
@@ -277,6 +287,19 @@ export const Profile: React.FC = () => {
                     </>
                 )}
             </AnimatePresence>
+
+            {/* Loan Application Modal */}
+            {user && (
+                <LoanApplicationModal
+                    isOpen={showLoanModal}
+                    onClose={() => setShowLoanModal(false)}
+                    vanigaScore={user.vanigaScore}
+                    loanEligible={user.loanEligible}
+                    onSuccess={() => {
+                        alert('Loan application submitted successfully!');
+                    }}
+                />
+            )}
 
             {/* QR Code Modal */}
             {user.upiId && (
