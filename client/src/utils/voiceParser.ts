@@ -89,8 +89,11 @@ export const parseVoiceInput = (transcript: string): ParsedTransaction => {
     // ==================== AMOUNT EXTRACTION ====================
 
     const amountPatterns = [
+        // "was ₹150" or "were ₹200" patterns
+        /(?:was|were)\s*₹?\s*([\d,]+)/i,
+
         // "is 150" or "are 150" patterns (for "credit is 150")
-        /(?:is|are)\s+([\d,]+)/i,
+        /(?:is|are)\s*₹?\s*([\d,]+)/i,
 
         // Comma-separated with currency: "17,000 rupees" or "₹17,000"
         /([\d,]+)\s*(?:rupees?|rs\.?|₹|dollars?)/i,
@@ -135,10 +138,10 @@ export const parseVoiceInput = (transcript: string): ParsedTransaction => {
     // ==================== CUSTOMER NAME EXTRACTION ====================
 
     const namePatterns = [
-        // "to Ramesh", "credit to Suresh Kumar"
-        /(?:to|credit to|gave to|lent to)\s+([a-z][a-z\s]{1,30})(?:\s+\d|\s+rupees?|\s+rs|\s+₹|$)/i,
-        // "from Priya", "received from Kumar"
-        /(?:from|payment from|received from|collected from)\s+([a-z][a-z\s]{1,30})(?:\s+\d|\s+rupees?|\s+rs|\s+₹|$)/i,
+        // "to Ramesh", "credit to Suresh Kumar" - stop before is/was/were/are
+        /(?:to|credit to|gave to|lent to)\s+([a-z][a-z\s]{1,30})(?:\s+(?:is|was|were|are)|\s+\d|\s+rupees?|\s+rs|\s+₹|$)/i,
+        // "from Priya", "received from Kumar" - stop before is/was/were/are
+        /(?:from|payment from|received from|collected from)\s+([a-z][a-z\s]{1,30})(?:\s+(?:is|was|were|are)|\s+\d|\s+rupees?|\s+rs|\s+₹|$)/i,
         // Hindi: "Ramesh ko", "Suresh se"
         /([a-z][a-z\s]{1,30})\s+(?:ko|se)(?:\s|$)/i,
     ];
@@ -149,7 +152,7 @@ export const parseVoiceInput = (transcript: string): ParsedTransaction => {
             const extractedName = match[1].trim();
 
             // Filter out common words that aren't names
-            const excludeWords = ['rent', 'salary', 'utilities', 'inventory', 'transport', 'marketing', 'expense', 'payment', 'credit'];
+            const excludeWords = ['rent', 'salary', 'utilities', 'inventory', 'transport', 'marketing', 'expense', 'payment', 'credit', 'was', 'were', 'is', 'are'];
             if (!excludeWords.some(word => extractedName.toLowerCase().includes(word))) {
                 // Capitalize properly
                 customerName = extractedName
