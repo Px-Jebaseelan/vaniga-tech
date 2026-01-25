@@ -157,20 +157,35 @@ export const useVoiceInput = (): UseVoiceInputReturn => {
     const startListening = useCallback(() => {
         if (!recognitionRef.current) return;
 
+        // Reset manual stop flag
+        manualStopRef.current = false;
+
         try {
-            setState(prev => ({ ...prev, transcript: '', error: null }));
+            setState(prev => ({ ...prev, transcript: '', error: null, isListening: true }));
             finalTranscriptRef.current = '';
-            manualStopRef.current = false; // Reset manual stop flag
             recognitionRef.current.start();
         } catch (error: any) {
-            // Already started - ignore
+            // If already started, abort and restart
             if (error.message && error.message.includes('already started')) {
-                console.log('Recognition already active');
+                console.log('Recognition already active, restarting...');
+                try {
+                    recognitionRef.current.abort(); // Use abort instead of stop
+                    setTimeout(() => {
+                        try {
+                            recognitionRef.current.start();
+                        } catch (e) {
+                            console.error('Failed to restart after abort:', e);
+                        }
+                    }, 100);
+                } catch (abortError) {
+                    console.error('Failed to abort:', abortError);
+                }
             } else {
                 console.error('Failed to start recognition:', error);
                 setState(prev => ({
                     ...prev,
                     error: 'Failed to start voice recognition. Please try again.',
+                    isListening: false,
                 }));
             }
         }
@@ -192,6 +207,8 @@ export const useVoiceInput = (): UseVoiceInputReturn => {
             setState(prev => ({ ...prev, isListening: false }));
         } catch (error) {
             console.error('Failed to stop recognition:', error);
+            // Force state update even if stop fails
+            setState(prev => ({ ...prev, isListening: false }));
         }
     }, []);
 
