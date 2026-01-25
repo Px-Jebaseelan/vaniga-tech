@@ -138,7 +138,7 @@ export const getCreditRecommendation = async (req, res, next) => {
         const customerSummary = prepareCustomerSummary(customer, transactions);
 
         // Generate recommendation using Gemini (using latest stable model)
-        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash-latest' });
+        const model = genAI.getGenerativeModel({ model: 'gemini-3-flash-preview' });
         const prompt = `You are a credit risk analyst for micro-businesses in India. Analyze this customer's data and recommend a safe credit limit.
 
 Customer Data:
