@@ -63,3 +63,6 @@ data/
 
 # Uploads
 uploads/
+
+# Presentation (local only)
+PRESENTATION_PROMPT.md
