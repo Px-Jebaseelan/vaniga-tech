@@ -9,6 +9,7 @@ import {
     Users,
     LogOut,
     TrendingUp,
+    Wallet,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -21,6 +22,7 @@ export const Sidebar: React.FC = () => {
         { icon: Receipt, label: 'Transactions', path: '/transactions' },
         { icon: Users, label: 'Customers', path: '/customers' },
         { icon: BarChart3, label: 'Analytics', path: '/analytics' },
+        { icon: Wallet, label: 'Budget', path: '/budget' },
         { icon: User, label: 'Profile', path: '/profile' },
     ];
 

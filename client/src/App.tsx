@@ -7,6 +7,7 @@ import { Register } from './pages/Register';
 import { Dashboard } from './pages/Dashboard';
 import { Transactions } from './pages/Transactions';
 import { Analytics } from './pages/Analytics';
+import { BudgetPage } from './pages/Budget'; // Added BudgetPage import
 import { Profile } from './pages/Profile';
 import { Customers } from './pages/Customers';
 import { wakeUpServer } from './utils/serverWakeUp';
@@ -99,6 +100,16 @@ function AppRoutes() {
           <ProtectedRoute>
             <Layout>
               <Analytics />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/budget"
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <BudgetPage />
             </Layout>
           </ProtectedRoute>
         }
