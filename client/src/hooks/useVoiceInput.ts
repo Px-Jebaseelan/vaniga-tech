@@ -28,6 +28,7 @@ export const useVoiceInput = (): UseVoiceInputReturn => {
     const recognitionRef = useRef<any>(null);
     const finalTranscriptRef = useRef<string>('');
     const restartTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const manualStopRef = useRef<boolean>(false); // Track manual stop
 
     useEffect(() => {
         if (!state.isSupported) return;
@@ -46,6 +47,7 @@ export const useVoiceInput = (): UseVoiceInputReturn => {
             console.log('🎤 Voice recognition started');
             setState(prev => ({ ...prev, isListening: true, error: null }));
             finalTranscriptRef.current = '';
+            manualStopRef.current = false; // Reset manual stop flag
         };
 
         recognitionInstance.onresult = (event: any) => {
@@ -108,8 +110,8 @@ export const useVoiceInput = (): UseVoiceInputReturn => {
                 error: errorMessage,
             }));
 
-            // Auto-retry for transient errors
-            if (shouldRetry && state.isListening) {
+            // Auto-retry for transient errors (but not if manually stopped)
+            if (shouldRetry && state.isListening && !manualStopRef.current) {
                 restartTimeoutRef.current = setTimeout(() => {
                     try {
                         recognitionInstance.start();
@@ -124,8 +126,8 @@ export const useVoiceInput = (): UseVoiceInputReturn => {
             console.log('🛑 Voice recognition ended');
             setState(prev => ({ ...prev, isListening: false }));
 
-            // Auto-restart if still supposed to be listening
-            if (state.isListening && !state.error) {
+            // Auto-restart if still supposed to be listening (and not manually stopped)
+            if (state.isListening && !state.error && !manualStopRef.current) {
                 restartTimeoutRef.current = setTimeout(() => {
                     try {
                         recognitionInstance.start();
@@ -158,6 +160,7 @@ export const useVoiceInput = (): UseVoiceInputReturn => {
         try {
             setState(prev => ({ ...prev, transcript: '', error: null }));
             finalTranscriptRef.current = '';
+            manualStopRef.current = false; // Reset manual stop flag
             recognitionRef.current.start();
         } catch (error: any) {
             // Already started - ignore
@@ -176,6 +179,9 @@ export const useVoiceInput = (): UseVoiceInputReturn => {
     const stopListening = useCallback(() => {
         if (!recognitionRef.current) return;
 
+        // Set manual stop flag to prevent auto-restart
+        manualStopRef.current = true;
+
         if (restartTimeoutRef.current) {
             clearTimeout(restartTimeoutRef.current);
             restartTimeoutRef.current = null;
@@ -183,6 +189,7 @@ export const useVoiceInput = (): UseVoiceInputReturn => {
 
         try {
             recognitionRef.current.stop();
+            setState(prev => ({ ...prev, isListening: false }));
         } catch (error) {
             console.error('Failed to stop recognition:', error);
         }
