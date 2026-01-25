@@ -26,7 +26,6 @@ export const useVoiceInput = (): UseVoiceInputReturn => {
     });
 
     const recognitionRef = useRef<any>(null);
-    const finalTranscriptRef = useRef<string>('');
 
     useEffect(() => {
         if (!state.isSupported) return;
