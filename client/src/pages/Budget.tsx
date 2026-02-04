@@ -46,7 +46,7 @@ export const BudgetPage: React.FC = () => {
             setLoading(true);
             const response = await budgetService.getAll(currentMonth);
             if (response.success) {
-                setBudgets(response.data);
+                setBudgets(Array.isArray(response.data) ? response.data : response.data?.data || []);
             }
         } catch (error) {
             console.error('Error fetching budgets:', error);

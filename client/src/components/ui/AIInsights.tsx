@@ -147,7 +147,7 @@ export const AIInsights: React.FC = () => {
         );
     }
 
-    if (!insights || insights.insights.length === 0) {
+    if (!insights || !insights.insights || insights.insights.length === 0) {
         return (
             <Card className="bg-gradient-to-br from-slate-50 to-gray-50">
                 <div className="flex items-center gap-3 mb-4">
@@ -197,7 +197,7 @@ export const AIInsights: React.FC = () => {
             </div>
 
             <div className="space-y-4">
-                {insights.insights.map((insight, index) => {
+                {(insights?.insights || []).map((insight, index) => {
                     const Icon = getInsightIcon(index);
                     const gradientColor = getInsightColor(index);
 

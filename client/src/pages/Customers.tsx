@@ -29,7 +29,7 @@ export const Customers: React.FC = () => {
             setLoading(true);
             const response = await customerService.getAll({ search: searchQuery, sortBy: 'name' });
             if (response.success && response.data) {
-                setCustomers(response.data);
+                setCustomers(Array.isArray(response.data) ? response.data : []);
             }
         } catch (error) {
             console.error('Error fetching customers:', error);
